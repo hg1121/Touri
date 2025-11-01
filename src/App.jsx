@@ -1,22 +1,55 @@
-import React from 'react'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import './App.css';
+
+
+import Navbar from './components/Navbar/Navbar';
+import Search from './components/Search/Search';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import Auth from './components/Auth';
+
+
+import Home from './pages/Home/Home';
+import Results from './pages/Results/Results';
+import Itinerary from './pages/Itinerary/Itinerary';
+import Profile from './pages/Profile/Profile';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1 className="App-title">Touri</h1>
-        <p className="App-subtitle">Welcome to your new application</p>
-      </header>
-      <main className="App-main">
-        <div className="App-content">
-          <h2>Getting Started</h2>
-          <p>This is your Touri application with Firebase integration!</p>
-          <p>Firebase is set up and ready to use in the background.</p>
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/results" element={<Results />} />
+            <Route 
+              path="/itinerary" 
+              element={
+                <ProtectedRoute>
+                  <Itinerary />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
         </div>
-      </main>
-    </div>
-  )
+      </Router>
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;
+
+

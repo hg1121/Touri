@@ -1,0 +1,361 @@
+.itinerary-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: calc(100vh - 80px);
+  }
+  
+  .itinerary-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+  
+  .header-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .destination {
+    font-size: 1.5rem;
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
+  }
+  
+  .dates {
+    font-size: 1.1rem;
+    opacity: 0.8;
+  }
+  
+  .header-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .action-button {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid white;
+    background: transparent;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    font-size: 1rem;
+  }
+  
+  .action-button:hover:not(:disabled) {
+    background: white;
+    color: #667eea;
+  }
+  
+  .action-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .travel-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  
+  .summary-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  .summary-card h3 {
+    font-size: 1.3rem;
+    color: #333;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 0.5rem;
+  }
+  
+  .summary-details p {
+    margin: 0.5rem 0;
+    color: #666;
+  }
+  
+  .summary-details .price {
+    color: #667eea;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+  }
+  
+  .summary-card.total {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    text-align: center;
+  }
+  
+  .total-price {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #667eea;
+    margin: 1rem 0;
+  }
+  
+  .price-note {
+    font-size: 0.85rem;
+    color: #999;
+    font-style: italic;
+  }
+  
+  .daily-itinerary {
+    margin-bottom: 3rem;
+  }
+  
+  .daily-itinerary > h2 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 2rem;
+  }
+  
+  .day-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  .day-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f0f0f0;
+  }
+  
+  .day-header h3 {
+    font-size: 1.5rem;
+    color: #667eea;
+    margin-bottom: 0.5rem;
+  }
+  
+  .day-title {
+    font-size: 1.2rem;
+    color: #666;
+    font-weight: 500;
+  }
+  
+  .activities-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-left: 1rem;
+  }
+  
+  .activity-item {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 1.5rem;
+    position: relative;
+  }
+  
+  .activity-time {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .time-dot {
+    width: 12px;
+    height: 12px;
+    background: #667eea;
+    border-radius: 50%;
+    margin-top: 0.4rem;
+    position: relative;
+    flex-shrink: 0;
+  }
+  
+  .time-dot::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 5px;
+    width: 2px;
+    height: calc(100% + 2rem);
+    background: #e0e0e0;
+  }
+  
+  .activity-item:last-child .time-dot::after {
+    display: none;
+  }
+  
+  .time-text {
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+  }
+  
+  .activity-content {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 3px solid #667eea;
+  }
+  
+  .activity-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .activity-icon {
+    font-size: 1.5rem;
+  }
+  
+  .activity-content h4 {
+    font-size: 1.1rem;
+    color: #333;
+    margin: 0;
+  }
+  
+  .activity-content p {
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
+  }
+  
+  .recommendations {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  .recommendations h2 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+  }
+  
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .tip-card {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  .tip-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  
+  .tip-card h4 {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 0.75rem;
+  }
+  
+  .tip-card p {
+    color: #666;
+    line-height: 1.5;
+    font-size: 0.95rem;
+  }
+  
+  .itinerary-footer {
+    text-align: center;
+    padding: 2rem 0;
+  }
+  
+  .secondary-button {
+    padding: 0.75rem 2rem;
+    background: white;
+    border: 2px solid #667eea;
+    color: #667eea;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    font-size: 1rem;
+  }
+  
+  .secondary-button:hover {
+    background: #667eea;
+    color: white;
+  }
+  
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    gap: 1.5rem;
+  }
+  
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f0f0f0;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .loading-container p {
+    font-size: 1.2rem;
+    color: #666;
+  }
+  
+  @media (max-width: 768px) {
+    .itinerary-container {
+      padding: 1rem;
+    }
+  
+    .itinerary-header {
+      padding: 1.5rem;
+    }
+  
+    .header-content h1 {
+      font-size: 2rem;
+    }
+  
+    .destination {
+      font-size: 1.2rem;
+    }
+  
+    .travel-summary {
+      grid-template-columns: 1fr;
+    }
+  
+    .activity-item {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  
+    .activity-time {
+      flex-direction: row;
+    }
+  
+    .time-dot::after {
+      display: none;
+    }
+  
+    .tips-grid {
+      grid-template-columns: 1fr;
+    }
+  }
