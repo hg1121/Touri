@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { addDocument } from '../../firebase/firestore';
+import jsPDF from 'jspdf';
 import './Itinerary.css';
 
 const Itinerary = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const [selections, setSelections] = useState(null);
   const [itinerary, setItinerary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -16,7 +16,6 @@ const Itinerary = () => {
     const data = sessionStorage.getItem('selections');
     if (data) {
       const parsedData = JSON.parse(data);
-      setSelections(parsedData);
       generateItinerary(parsedData);
     } else {
       navigate('/results');
@@ -163,7 +162,175 @@ const Itinerary = () => {
   };
 
   const handleDownloadPDF = () => {
-    alert('PDF download feature coming soon! This will generate a downloadable PDF of your itinerary.');
+    if (!itinerary) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 20;
+    let yPosition = margin;
+
+    // Helper function to add text with line wrapping
+    const addText = (text, x, y, maxWidth, fontSize = 10, style = 'normal') => {
+      doc.setFontSize(fontSize);
+      doc.setFont('helvetica', style);
+      const lines = doc.splitTextToSize(text, maxWidth);
+      doc.text(lines, x, y);
+      return y + (lines.length * fontSize * 0.5) + 5;
+    };
+
+    // Helper function to check if we need a new page
+    const checkNewPage = (currentY, requiredSpace = 30) => {
+      if (currentY + requiredSpace > pageHeight - margin) {
+        doc.addPage();
+        return margin;
+      }
+      return currentY;
+    };
+
+    // Title
+    doc.setFillColor(41, 128, 185);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Travel Itinerary', pageWidth / 2, 20, { align: 'center' });
+    doc.setFontSize(14);
+    doc.text(itinerary.destination, pageWidth / 2, 32, { align: 'center' });
+
+    // Reset text color
+    doc.setTextColor(0, 0, 0);
+    yPosition = 50;
+
+    // Dates
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    const dateText = `${new Date(itinerary.startDate).toLocaleDateString()} - ${new Date(itinerary.endDate).toLocaleDateString()}`;
+    yPosition = addText(dateText, pageWidth / 2, yPosition, pageWidth - 2 * margin, 11, 'normal');
+    doc.text(dateText, pageWidth / 2, yPosition - 5, { align: 'center' });
+    yPosition += 5;
+
+    // Flight Details Section
+    yPosition = checkNewPage(yPosition, 40);
+    doc.setFillColor(52, 152, 219);
+    doc.rect(margin, yPosition, pageWidth - 2 * margin, 8, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Flight Details', margin + 5, yPosition + 6);
+    doc.setTextColor(0, 0, 0);
+    yPosition += 15;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    yPosition = addText(`Airline: ${itinerary.flight.airline}`, margin + 5, yPosition, pageWidth - 2 * margin, 10, 'bold');
+    doc.setFont('helvetica', 'normal');
+    yPosition = addText(`Flight Number: ${itinerary.flight.flightNumber}`, margin + 5, yPosition, pageWidth - 2 * margin);
+    yPosition = addText(`Departure: ${itinerary.flight.departure}`, margin + 5, yPosition, pageWidth - 2 * margin);
+    yPosition = addText(`Arrival: ${itinerary.flight.arrival}`, margin + 5, yPosition, pageWidth - 2 * margin);
+    yPosition = addText(`Duration: ${itinerary.flight.duration}`, margin + 5, yPosition, pageWidth - 2 * margin);
+    yPosition = addText(`Price: $${itinerary.flight.price}`, margin + 5, yPosition, pageWidth - 2 * margin);
+    yPosition += 10;
+
+    // Hotel Details Section
+    yPosition = checkNewPage(yPosition, 40);
+    doc.setFillColor(52, 152, 219);
+    doc.rect(margin, yPosition, pageWidth - 2 * margin, 8, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Accommodation', margin + 5, yPosition + 6);
+    doc.setTextColor(0, 0, 0);
+    yPosition += 15;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    yPosition = addText(`Hotel: ${itinerary.hotel.name}`, margin + 5, yPosition, pageWidth - 2 * margin, 10, 'bold');
+    doc.setFont('helvetica', 'normal');
+    yPosition = addText(`Rating: ${'★'.repeat(itinerary.hotel.stars)} (${itinerary.hotel.rating}/5)`, margin + 5, yPosition, pageWidth - 2 * margin);
+    yPosition = addText(`Location: ${itinerary.hotel.distance}`, margin + 5, yPosition, pageWidth - 2 * margin);
+    yPosition = addText(`Price per night: $${itinerary.hotel.pricePerNight}`, margin + 5, yPosition, pageWidth - 2 * margin);
+    yPosition += 10;
+
+    // Total Cost
+    yPosition = checkNewPage(yPosition, 20);
+    doc.setFillColor(46, 204, 113);
+    doc.rect(margin, yPosition, pageWidth - 2 * margin, 8, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Total Estimated Cost: $${itinerary.totalCost}`, margin + 5, yPosition + 6);
+    doc.setTextColor(0, 0, 0);
+    yPosition += 15;
+
+    // Daily Itinerary
+    itinerary.dailyPlans.forEach((day) => {
+      yPosition = checkNewPage(yPosition, 50);
+
+      // Day Header
+      doc.setFillColor(231, 76, 60);
+      doc.rect(margin, yPosition, pageWidth - 2 * margin, 8, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Day ${day.day}: ${day.title}`, margin + 5, yPosition + 6);
+      doc.setTextColor(0, 0, 0);
+      yPosition += 15;
+
+      // Activities
+      day.activities.forEach((activity) => {
+        yPosition = checkNewPage(yPosition, 25);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${activity.time}`, margin + 5, yPosition);
+        doc.setFont('helvetica', 'bold');
+        yPosition = addText(activity.activity, margin + 30, yPosition, pageWidth - 2 * margin - 30, 10, 'bold');
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        yPosition = addText(activity.description, margin + 30, yPosition, pageWidth - 2 * margin - 30, 9);
+        yPosition += 3;
+      });
+
+      yPosition += 5;
+    });
+
+    // Travel Tips Section
+    yPosition = checkNewPage(yPosition, 40);
+    doc.setFillColor(155, 89, 182);
+    doc.rect(margin, yPosition, pageWidth - 2 * margin, 8, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Travel Tips', margin + 5, yPosition + 6);
+    doc.setTextColor(0, 0, 0);
+    yPosition += 15;
+
+    const tips = [
+      'Consider local weather and peak tourist seasons when planning activities',
+      'Don\'t miss trying authentic local dishes and visiting popular food markets',
+      'Popular attractions may require advance booking - check online',
+      'Research local public transport options or consider ride-sharing apps'
+    ];
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    tips.forEach((tip) => {
+      yPosition = checkNewPage(yPosition, 15);
+      const bulletPoint = `• ${tip}`;
+      yPosition = addText(bulletPoint, margin + 5, yPosition, pageWidth - 2 * margin, 10);
+    });
+
+    // Footer
+    yPosition = checkNewPage(yPosition, 20);
+    doc.setFontSize(8);
+    doc.setTextColor(128, 128, 128);
+    doc.text('Generated by Touri - Your Travel Planning Companion', pageWidth / 2, pageHeight - 10, { align: 'center' });
+    doc.text(new Date().toLocaleDateString(), pageWidth / 2, pageHeight - 5, { align: 'center' });
+
+    // Save the PDF
+    const fileName = `${itinerary.destination.replace(/[^a-z0-9]/gi, '_')}_Itinerary.pdf`;
+    doc.save(fileName);
   };
 
   const getActivityIcon = (type) => {
