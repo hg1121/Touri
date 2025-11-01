@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Search.css';
 
 const Search = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchType, setSearchType] = useState('flight');
   const [loading, setLoading] = useState(false);
 
   const [flightSearch, setFlightSearch] = useState({
     origin: '',
-    destination: '',
+    destination: location.state?.destination || '',
     departDate: '',
     returnDate: '',
     passengers: 1,
@@ -17,13 +18,22 @@ const Search = () => {
   });
 
   const [hotelSearch, setHotelSearch] = useState({
-    location: '',
+    location: location.state?.destination || '',
     checkIn: '',
     checkOut: '',
     guests: 1,
     rooms: 1,
     sortBy: 'price'
   });
+
+  useEffect(() => {
+    if (location.state?.destination) {
+      // If destination is provided, suggest hotel search
+      if (!location.state.destination.includes(',')) {
+        setSearchType('hotel');
+      }
+    }
+  }, [location.state]);
 
   const handleFlightChange = (e) => {
     const { name, value } = e.target;

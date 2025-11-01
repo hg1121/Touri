@@ -42,6 +42,16 @@ const Navbar = () => {
             </Link>
           </li>
           <li className="navbar-item">
+            <Link to="/discover" className="navbar-link" onClick={() => setMenuOpen(false)}>
+              Discover
+            </Link>
+          </li>
+          <li className="navbar-item">
+            <Link to="/guides" className="navbar-link" onClick={() => setMenuOpen(false)}>
+              Guides
+            </Link>
+          </li>
+          <li className="navbar-item">
             <Link to="/search" className="navbar-link" onClick={() => setMenuOpen(false)}>
               Search
             </Link>
@@ -51,7 +61,7 @@ const Navbar = () => {
             <>
               <li className="navbar-item">
                 <Link to="/itinerary" className="navbar-link" onClick={() => setMenuOpen(false)}>
-                  My Itinerary
+                  Itinerary
                 </Link>
               </li>
               <li className="navbar-item">

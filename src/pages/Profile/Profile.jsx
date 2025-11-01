@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { queryDocuments } from '../../firebase/firestore';
 import './Profile.css';
 
 const Profile = () => {
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [savedItineraries, setSavedItineraries] = useState([]);
+  const [sharedExperiences, setSharedExperiences] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadSavedItineraries();
+    loadSharedExperiences();
   }, []);
 
   const loadSavedItineraries = async () => {
@@ -22,6 +26,21 @@ const Profile = () => {
       setSavedItineraries(itineraries);
     } catch (error) {
       console.error('Error loading itineraries:', error);
+      setSavedItineraries([]);
+    }
+  };
+
+  const loadSharedExperiences = async () => {
+    try {
+      const experiences = await queryDocuments(
+        'experiences',
+        [{ field: 'userId', operator: '==', value: currentUser.uid }],
+        'createdAt'
+      );
+      setSharedExperiences(experiences);
+    } catch (error) {
+      console.error('Error loading experiences:', error);
+      setSharedExperiences([]);
     } finally {
       setLoading(false);
     }
@@ -76,6 +95,63 @@ const Profile = () => {
           )}
         </section>
 
+        <section className="shared-experiences">
+          <div className="section-header">
+            <h2>Shared Experiences</h2>
+            <button 
+              className="share-experience-btn"
+              onClick={() => navigate('/share-experience')}
+            >
+              + Share Experience
+            </button>
+          </div>
+          
+          {sharedExperiences.length > 0 ? (
+            <div className="experiences-grid">
+              {sharedExperiences.map((experience) => (
+                <div key={experience.id} className="experience-card">
+                  <div className="experience-header">
+                    <h3>{experience.title || experience.destination}</h3>
+                    <div className="experience-rating">
+                      {'⭐'.repeat(experience.rating || 0)}
+                    </div>
+                  </div>
+                  <div className="experience-meta">
+                    <span>📍 {experience.destination}</span>
+                    {experience.tripDate && (
+                      <span>📅 {new Date(experience.tripDate).toLocaleDateString()}</span>
+                    )}
+                  </div>
+                  <p className="experience-description">
+                    {experience.description?.substring(0, 150)}...
+                  </p>
+                  {experience.highlights && experience.highlights.length > 0 && (
+                    <div className="experience-highlights">
+                      <strong>Highlights:</strong>
+                      <div className="highlights-tags">
+                        {experience.highlights.slice(0, 3).map((highlight, idx) => (
+                          <span key={idx} className="highlight-tag">{highlight}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <p>No shared experiences yet</p>
+              <p className="empty-subtitle">Share your travel stories with the community!</p>
+              <button 
+                className="empty-cta-btn"
+                onClick={() => navigate('/share-experience')}
+              >
+                Share Your First Experience
+              </button>
+            </div>
+          )}
+        </section>
+
         <section className="profile-stats">
           <h2>Travel Statistics</h2>
           <div className="stats-grid">
@@ -97,6 +173,11 @@ const Profile = () => {
                 ${savedItineraries.reduce((sum, i) => sum + (i.totalCost || 0), 0)}
               </span>
               <span className="stat-label">Total Budget</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-icon">📝</span>
+              <span className="stat-number">{sharedExperiences.length}</span>
+              <span className="stat-label">Experiences Shared</span>
             </div>
           </div>
         </section>
